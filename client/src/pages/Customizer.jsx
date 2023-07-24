@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
 import {useSnapshot} from 'valtio';
 
@@ -26,8 +26,25 @@ const Customizer = () => {
 		logoShirt: true,
 		stylishShirt: false,
 	});
+	const tabRef = useRef();
+
+	useEffect(() => {
+		const checkIfClickedOutside = (e) => {
+			if (tabRef.current && !tabRef.current.contains(e.target)) {
+				setActiveEditorTab('');
+			}
+		};
+		document.addEventListener('mousedown', checkIfClickedOutside);
+
+		return () => {
+			// Cleanup the event listener
+
+			document.removeEventListener('mousedown', checkIfClickedOutside);
+		};
+	}, []);
 	// show tab content depending on the activeTab
 	const generateTabContent = () => {
+		console.log('activeEditorTab ', activeEditorTab);
 		switch (activeEditorTab) {
 			case 'colorpicker':
 				return <ColorPicker />;
@@ -48,6 +65,7 @@ const Customizer = () => {
 	};
 
 	const handleSubmit = async (type) => {
+		setActiveEditorTab('');
 		return alert(
 			'Sorry, our free trail for AI is over, Please use upload image '
 		);
@@ -124,7 +142,7 @@ const Customizer = () => {
 						key='custom'
 						{...slideAnimation('left')}
 					>
-						<div className='flex items-center min-h-screen'>
+						<div className='flex items-center min-h-screen' ref={tabRef}>
 							<div className='editortabs-container tabs'>
 								{EditorTabs.map((tab) => (
 									<Tab
